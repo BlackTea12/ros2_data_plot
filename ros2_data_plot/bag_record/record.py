@@ -2,7 +2,6 @@ import rclpy
 from rclpy.node import Node
 from rclpy.serialization import serialize_message
 from std_msgs.msg import String
-import importlib
 import rosbag2_py
 from rosbags.typesys import Stores, get_typestore
 from nav_msgs.msg import Odometry, Path

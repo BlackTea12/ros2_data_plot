@@ -5,6 +5,7 @@ from nav_msgs.msg import Path
 from nav_msgs.msg import Odometry
 from ros2_data_plot.bag_parser.object import ObjectType as obtype
 from ros2_data_plot.bag_plot.plot import DrawPlot as drawer
+from ros2_data_plot.bag_plot.functions import find_path_point
 
 class Bag2FileParser():
   def __init__(self, bag_file):
@@ -61,12 +62,14 @@ class Bag2FileParser():
         traj_time.append(timestamp)
         traj_x.append(xs[0])
         traj_y.append(ys[0])
-
+    print("finished path extraction!")
     poses = self.get_messages(topic_rb)
     robot_parser = obtype(poses)
     rb_time = robot_parser.get_timestamps()
     rb_x, rb_y, rb_deg = robot_parser.get_poses()
     vx, vy, vdeg = robot_parser.get_speeds()
+    print("finished robot extraction!")
+    print(f"{len(vx)} and {len(vy)}")
     ploter = drawer(traj_x=traj_x, traj_y=traj_y, traj_time=traj_time,
                     rb_x=rb_x, rb_y=rb_y, rb_time=rb_time,
                     vx=vx , vy=vy)
@@ -109,6 +112,51 @@ class Bag2FileParser():
     ploter.path_track_vel_cmp()
     return
   
+  def show_navigation_related_to_robot(self, topic_traj, topic_rb, offset=''):
+    """
+    @topic_traj Path
+    @topic_rb Odometry
+    topic type: Path
+    1. Plot trajectory in x-y plane
+    2. Plot actual robot odometry
+    3. Plot postion error [m]
+    """
+    paths = self.get_messages(topic_traj)
+    traj_time, trajs_x, trajs_y = [], [], []
+    object_parser = obtype()
+    for timestamp, path in paths:
+      xs, ys, degs = object_parser.extract_poses(path)
+      if len(xs):
+        traj_time.append(timestamp)
+        trajs_x.append(xs)
+        trajs_y.append(ys)
+    print("finished path extraction!")
+
+    poses = self.get_messages(topic_rb)
+    robot_parser = obtype(poses)
+    rb_time = robot_parser.get_timestamps()
+    rb_x, rb_y, rb_deg = robot_parser.get_poses()
+    vx, vy, vdeg = robot_parser.get_speeds()
+    print("finished robot extraction!")
+
+    # finding related path points based on robot
+    traj_x = []
+    traj_y = []
+    traj_filtered_time = []
+    for i in range(len(traj_time)):
+      for j in range(len(rb_time)):
+        if abs(traj_time[i]-rb_time[j]) < 500000000:
+          result_point = find_path_point(rb_x[j], rb_y[j], trajs_x[i], trajs_y[i])
+          traj_x.append(result_point[0])
+          traj_y.append(result_point[1])
+          traj_filtered_time.append(traj_time[i])
+          break
+    ploter = drawer(traj_x=traj_x, traj_y=traj_y, traj_time=traj_filtered_time,
+                    rb_x=rb_x, rb_y=rb_y, rb_time=rb_time,
+                    vx=vx , vy=vy)
+    ploter.xyplane(offset)
+    return
+
   def show_speed(self, topic_cmdv, topic_rb, b_acc_plot=False):
     """
     @topic_cmdv Twist

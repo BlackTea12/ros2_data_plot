@@ -21,17 +21,22 @@ class DrawPlot():
     traj_y = self.kwargs.get('traj_y', None)
     # deg = self.kwargs.get('traj_deg', None)
     traj_t = self.kwargs.get('traj_time', None)
-    
+    if len(traj_x) == 0 or len(traj_y) == 0 or len(traj_t) == 0: 
+      print("Length 0 exists in trajectory! Please check your data")
+
     rb_x = self.kwargs.get('rb_x', None)
     rb_y = self.kwargs.get('rb_y', None)
     # rb_deg = self.kwargs.get('rb_deg', None)
     rb_t = self.kwargs.get('rb_time', None)
+    if len(rb_x) == 0 or len(rb_y) == 0 or len(rb_t) == 0: 
+      print("Length 0 exists in trajectory! Please check your data")
 
-    speed_x = self.kwargs.get('vx', None)
-    speed_y = self.kwargs.get('vy', None)
+    # speed_x = self.kwargs.get('vx', None)
+    # speed_y = self.kwargs.get('vy', None)
 
     # Create subplots
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
+    # fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
+    fig, (ax1, ax2) = plt.subplots(2, 1)
     if offset:
       fig.suptitle("offset_from_furthest="+offset, weight='bold', fontsize=14)
     ax1.set_title("Trajectory Results", weight='bold', fontsize=12)
@@ -39,6 +44,7 @@ class DrawPlot():
     ax1.plot(rb_x, rb_y, '--', color='#ff6969', label='robot trajectory')
     ax1.set_xlabel('X-axis [m]')
     ax1.set_ylabel('Y-axis [m]')
+    ax1.set_xlim([-1.5,1.5])
     ax1.legend(loc='best')
     # annotation note
     # point_rb = ceil(len(rb_x)*2/3)
@@ -60,13 +66,13 @@ class DrawPlot():
     ax2.grid(axis='y')
     ax2.legend(loc='best')
 
-    time_vel, vel = self.get_velocity(speed_x, speed_y, rb_t)
-    ax3.set_title("Robot Speed", weight='bold', fontsize=12)
-    ax3.plot(time_vel, vel, label='v [m/s]')
-    ax3.set_xlabel('[sec]')
-    ax3.set_ylabel('[m/s]')
-    ax3.grid(axis='y')
-    ax3.legend(loc='best')
+    # time_vel, vel = self.get_velocity(speed_x, speed_y, rb_t)
+    # ax3.set_title("Robot Speed", weight='bold', fontsize=12)
+    # ax3.plot(time_vel, vel, label='v [m/s]')
+    # ax3.set_xlabel('[sec]')
+    # ax3.set_ylabel('[m/s]')
+    # ax3.grid(axis='y')
+    # ax3.legend(loc='best')
     
     # Adjust the layout of the subplots
     plt.legend(loc='best')
