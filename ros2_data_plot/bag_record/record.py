@@ -96,7 +96,7 @@ class BagRecorder(Node):
 
 def main(args=None):
   rclpy.init(args=args)
-  test = BagRecorder('/home/hd/testing', {'/odom':'nav_msgs/msg/Odometry'}, {'/NAV/Stop':'std_msgs/msg/Bool'})
+  test = BagRecorder('/home/hd/testing/test', {'/amcl_pose':'geometry_msgs/msg/PoseWithCovarianceStamped', '/plan':'nav_msgs/msg/Path'}, {'/NAV/Stop':'std_msgs/msg/Bool'})
 
 if __name__ == '__main__':
   main()
